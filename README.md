@@ -50,16 +50,6 @@ http://fake-bank-security.com/verify-account
 ```
 **Expected:** `PHISHING 🔴 | High Risk | Models Agree`
 
-## 🏗️ Architecture Diagram
-```
-Email Input → Preprocessor (NLTK + Custom)
-                ↓
-    BERT Model ←→ LSTM Model (Parallel)
-                ↓
-            Summary Engine
-Agreement | Avg Conf | Verdict | Risk | Time
-                ↓
-              Flask UI
 ```
 
 ## 🤖 Model Details
