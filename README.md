@@ -50,8 +50,6 @@ http://fake-bank-security.com/verify-account
 ```
 **Expected:** `PHISHING 🔴 | High Risk | Models Agree`
 
-```
-
 ## 🤖 Model Details
 
 ### Model Training
