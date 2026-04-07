@@ -8,8 +8,8 @@ Production-ready phishing email detector with **BERT Transformer + Bidirectional
 
 ## 🎯 Live Demo Features
 ```
-🤖 BERT Prediction (94% accuracy)
-🧠 LSTM Prediction (91% accuracy)
+🤖 BERT Prediction 
+🧠 LSTM Prediction 
 📊 Model Agreement Status (✅ Agree / ⚠️ Disagree)
 📈 Average Confidence Score
 🎯 Final Combined Verdict
@@ -63,11 +63,6 @@ Agreement | Avg Conf | Verdict | Risk | Time
 ```
 
 ## 🤖 Model Details
-
-| Model | Type | Accuracy | Params | File |
-|-------|------|----------|---------|------|
-| BERT | Transformer | 94.2% | 110M | `phishing_model/` |
-| LSTM | BiRNN | 91.3% | 1.2M | `lstm_phishing_fixed.pth` |
 
 ### Model Training
 - **BERT:** Fine-tuned on phishing emails (HuggingFace)
