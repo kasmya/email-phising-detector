@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Email Detection System - BERT & LSTM Analysis</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        header { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        h1 { margin: 0; font-size: 2.5em; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; margin-top: 10px; }
+        main { padding: 40px; }
+        .input-section { background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; resize: vertical; box-sizing: border-box; }
+        textarea:focus { outline: none; border-color: #667eea; }
+        button { background: #667eea; color: white; padding: 15px 40px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; transition: background 0.3s; margin-top: 15px; }
+        button:hover { background: #5a67d8; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .results { display: none; }
+        .results.show { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .analytics-grid, .predictions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-left: 5px solid #667eea; }
+        .card h3 { margin-top: 0; color: #2c3e50; }
+        .metric { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .phishing-badge { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .phishing { background: #ff4757; color: white; }
+        .legit { background: #2ed573; color: white; }
+        .progress-bar { width: 100%; height: 20px; background: #eee; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; transition: width 1s ease; border-radius: 10px; }
+        .bert-progress { background: #ff6b6b; }
+        .lstm-progress { background: #4ecdc4; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #667eea; color: white; }
+        .risk-factor { padding: 8px; margin: 5px 0; border-radius: 5px; border-left: 4px solid #ff4757; background: #ffeaea; }
+        
+        /* NEW Analysis Summary Styles */
+        .analysis-summary {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            font-size: 1.1em;
+        }
+        .summary-header h3 {
+            margin: 0;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .agree {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .disagree {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .verdict-final, .verdict-legit {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .verdict-phish {
+            font-weight: bold;
+            color: #ff4757;
+        }
+        .verdict-uncertain {
+            font-weight: bold;
+            color: #ffc107;
+        }
+        footer { text-align: center; padding: 20px; background: #f8f9fa; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+<h1>Phishing Email Detection System</h1>
+            <p class="subtitle">BERT & LSTM Trained Deep Learning Models for Dual Phishing Analysis</p>
+        </header>
+        <main>
+            <div class="input-section">
+                <h2>Paste Email Text for Analysis</h2>
+                <textarea id="emailText" placeholder="Paste the full email content here...&#10;&#10;Example phishing:&#10;URGENT: Account suspended! Click http://fake-bank.com/verify immediately or lose access forever."></textarea>
+                <button onclick="analyzeEmail()">Analyze Email</button>
+            </div>
+            
+            <div id="results" class="results">
+                <h2 id="resultsTitle">Analysis Results</h2>
+                
+
+                
+
+                
+                <div class="predictions-grid">
+                    <div class="card">
+                        <h3>🤖 BERT Transformer Prediction</h3>
+                        <div id="bertResult"></div>
+                    </div>
+                    <div class="card">
+                        <h3>🧠 LSTM RNN Prediction</h3>
+                        <div id="lstmResult"></div>
+                    </div>
+                </div>
+
+                <!-- NEW Analysis Summary Section -->
+                <div id="analysisSummary" class="analysis-summary" style="display: none;">
+                    <div class="summary-header">
+                        <i class="fas fa-chart-simple"></i>
+                        <h3>Analysis Summary</h3>
+                    </div>
+                    
+                    <div class="summary-stats">
+                        <div class="stat">
+                            <span>🤝 Models Agreement:</span>
+                            <span id="modelsAgreement" class="agree">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span>📊 Avg Confidence:</span>
+                            <span id="avgConfidence">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span>🎯 Final Verdict:</span>
+                            <span id="finalVerdict" class="verdict-final">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span>⚡ Analysis Time:</span>
+                            <span id="analysisTime">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer>
+<p>Phishing Detection System | BERT & LSTM Dual Model Analysis</p>
+        </footer>
+    </div>
+
+    <script>
+        async function analyzeEmail() {
+            const text = document.getElementById('emailText').value.trim();
+            if (!text) return alert('Please paste email text');
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                alert('Analysis failed: ' + error.message);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Analyze Email';
+        }
+        
+        function displayResults(data) {
+            document.getElementById('results').classList.add('show');
+            
+            // BERT - Updated to handle new lstm structure (has confidence now)
+            const bert = data.bert;
+            document.getElementById('bertResult').innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 15px;">
+                    <span class="phishing-badge " + (bert.is_phishing ? 'phishing' : 'legit') + ">
+                        ` + (bert.prediction || (bert.is_phishing ? 'PHISHING' : 'LEGITIMATE')) + `
+                    </span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill bert-progress" style="width: ` + (bert.phishing_probability * 100) + `%;"></div>
+                </div>
+                <p><strong>Phishing Probability:</strong> ` + (bert.phishing_probability * 100).toFixed(1) + `% </p>
+                <p><strong>Confidence:</strong> ` + (bert.confidence * 100).toFixed(1) + `% </p>
+            `;
+            
+            // LSTM - Now uses confidence from new model
+            const lstm = data.lstm;
+            document.getElementById('lstmResult').innerHTML = `
+                <div style="font-size: 24px; margin-bottom: 15px;">
+                    <span class="phishing-badge ` + (lstm.is_phishing ? 'phishing' : 'legit') + `">
+                        ` + (lstm.is_phishing ? 'PHISHING' : 'LEGITIMATE') + `
+                    </span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill lstm-progress" style="width: ` + (lstm.phishing_probability * 100) + `%;"></div>
+                </div>
+                <p><strong>Phishing Probability:</strong> ` + (lstm.phishing_probability * 100).toFixed(1) + `% </p>
+                <p><strong>Confidence:</strong> ` + (lstm.confidence * 100).toFixed(1) + `% </p>
+            `;
+            
+            // NEW: Populate Summary
+            if (data.summary) {
+                const summary = data.summary;
+                document.getElementById('modelsAgreement').innerHTML = summary.models_agreement;
+                document.getElementById('modelsAgreement').className = summary.agreement_class;
+                document.getElementById('avgConfidence').innerHTML = (summary.avg_confidence * 100).toFixed(1) + '%';
+                document.getElementById('finalVerdict').innerHTML = summary.final_verdict;
+                document.getElementById('finalVerdict').className = summary.final_verdict === 'LEGITIMATE' ? 'verdict-legit' : 
+                                                                     summary.final_verdict === 'PHISHING' ? 'verdict-phish' : 'verdict-uncertain';
+                document.getElementById('analysisTime').innerHTML = summary.analysis_time;
+                document.getElementById('analysisSummary').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
