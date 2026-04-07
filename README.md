@@ -85,7 +85,6 @@ phising-detector-dl/
 ├── lstm_vocab_fixed.json # LSTM vocab
 ├── phishing_model/        # BERT model files
 ├── README.md             # This file
-└── TODO.md               # Development notes
 ```
 
 
